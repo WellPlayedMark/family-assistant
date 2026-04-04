@@ -1,5 +1,6 @@
 {
   "family_name": "The Allenbach Family",
+  "twilio_number": "+18557971691",
   "members": [
     {
       "name": "Mark",
@@ -54,14 +55,11 @@
     }
   ],
   "rules": [
-    "No more than one evening dinner out per week as a family",
-    "At least one family dinner at home together per week",
-    "Business trips require at least 2 weeks advance notice to the family",
-    "No solo evening activities on weeknights without checking with the other parent first",
-    "Weekends are protected family time — solo activities need family agreement",
-    "NIGHTTIME OVERBOOKING: A 'nighttime event' is any event that starts at or after 5:00 PM or runs into the evening. When any scheduling question involves a nighttime event, pull the full week's calendar and count all nighttime events. If adding the new event would bring the total to MORE than 2 nighttime events in that 7-day week (Mon–Sun), issue a clear warning: tell the person how many nighttime events are already booked, name them, and explicitly ask 'Are you sure you want that many evenings committed this week?' before treating it as approved.",
-    "TENTATIVE EVENTS: Any calendar event whose title ends with a question mark (?) must be treated as tentative/unconfirmed. When a proposed event overlaps with a tentative event, warn the person: 'Note: [Event Name?] is marked tentative on that date — confirm it's actually free before committing.'",
-    "FIELDWORK CONFLICTS: Mark has multiple Fieldwork calendars (e.g. Fieldwork - ATL, Fieldwork - LA, Fieldwork - Online Only, etc.). When any event is being considered on a date that has a Fieldwork entry, always ask: 'There is fieldwork scheduled that day — is Mark moderating?' If Mark is moderating, he is not available for family commitments during that time and the conflict should be flagged. If he is not moderating, the time may be free."
+    "BUSINESS TRIPS: Business trips need to be approved by Emily. If Mark asks about a business trip, remind him to get Emily's approval via text before confirming.",
+    "SOLO EVENINGS: No solo evening activities on weeknights without checking with the other parent first. Warn the person and ask if they've checked with their partner.",
+    "NIGHTTIME OVERBOOKING: A 'nighttime event' is any event starting at or after 5:00 PM. When a scheduling question involves a nighttime event, check the full week and count nighttime events. If adding the new event would bring the total to more than 2 in that Mon-Sun week, warn the person, name the existing events, and ask 'Are you sure you want that many evenings committed this week?'",
+    "TENTATIVE EVENTS: Any calendar event whose title ends with a question mark (?) is tentative. When a proposed event overlaps with a tentative event, warn: 'Note: [Event Name?] is marked tentative — confirm it's actually free before committing.'",
+    "FIELDWORK CONFLICTS: When any event is being considered on a date that has a Fieldwork calendar entry, ask: 'There is fieldwork scheduled that day — is Mark moderating?' If yes, flag it as a conflict."
   ],
   "preferences": {
     "dinner_time": "6:30 PM",

@@ -211,7 +211,11 @@ def build_system_prompt(config: dict, current_user: Optional[str], sms_mode: boo
 ## Family Members
 {members_lines}
 
-## Family Rules — MUST be enforced
+## Family Rules — Advisory
+These rules are guidelines, not hard blocks. When a request would break a rule:
+1. Flag it clearly and briefly
+2. Ask if they still want to proceed
+3. Respect their answer — it's their family, not yours
 {rules_lines}
 
 ## Family Preferences
@@ -221,7 +225,7 @@ def build_system_prompt(config: dict, current_user: Optional[str], sms_mode: boo
 1. ALWAYS use get_family_events to check the actual calendar before answering
 2. For multi-day trips, check the entire date range
 3. Check all family members' calendars unless the question is clearly about one person
-4. If a request would violate a rule, say so clearly and suggest an alternative
+4. Flag rule conflicts warmly — don't lecture, just inform and ask
 5. Be warm and direct
 """.strip()
 
