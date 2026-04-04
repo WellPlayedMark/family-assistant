@@ -1,0 +1,70 @@
+{
+  "family_name": "The Allenbach Family",
+  "members": [
+    {
+      "name": "Mark",
+      "role": "Dad",
+      "phone": "+16462560700",
+      "calendars": [
+        { "label": "Personal", "ics_url": "https://calendar.google.com/calendar/ical/mark.m.allenbach%40gmail.com/private-21ecc7876a9d7ea09e069c1d47245033/basic.ics" },
+        { "label": "Work", "ics_url": "https://calendar.google.com/calendar/ical/mark%40wellplayedllc.com/private-3b52f238c7e504726ff717cad31cf5d4/basic.ics" },
+        { "label": "Fieldwork - ATL & Hybrid ATL", "ics_url": "https://calendar.google.com/calendar/ical/wellplayedllc.com_juft6p73ooivbn8e65d9isosg4%40group.calendar.google.com/private-6be6383989d3ccc48cce6da5e081a9ed/basic.ics" },
+        { "label": "Fieldwork - LA & Hybrid LA", "ics_url": "https://calendar.google.com/calendar/ical/c_1400e559406ca474657496e458cce0516114a2c1dc025f3e6d5d85cc6bb93d35%40group.calendar.google.com/private-b87c7ab35f22d09ae079e2f5c9dbe977/basic.ics" },
+        { "label": "Fieldwork - Non-WP Location", "ics_url": "https://calendar.google.com/calendar/ical/c_a4ca271f7bb1ab7f8cc60a83dadbb221269731a84a035d1dd7f8145340ee13e2%40group.calendar.google.com/private-71311fbbdb95d3383114c81b47041d1b/basic.ics" },
+        { "label": "Fieldwork - Online Only", "ics_url": "https://calendar.google.com/calendar/ical/c_5e9d8a4f0fce1e49f605c36b8ab4b622a78413a933590132055f63587dfe5f85%40group.calendar.google.com/private-e940568d85f1af1eea3699472299256c/basic.ics" }
+      ],
+      "notes": "Works from home most days. Travels occasionally for business."
+    },
+    {
+      "name": "Emily",
+      "role": "Mom",
+      "phone": "+19177103120",
+      "calendars": [
+        { "label": "Personal", "ics_url": "https://calendar.google.com/calendar/ical/5onlcqbcs37b4je1ebq5ldenno%40group.calendar.google.com/private-cf58f35ec5aaf79e337857932c842593/basic.ics" },
+        { "label": "Work", "ics_url": "https://calendar.google.com/calendar/ical/emily.allenbach%40gmail.com/private-5336b87810ab280169da2eb6e10b837f/basic.ics" }
+      ],
+      "notes": ""
+    },
+    {
+      "name": "Lily",
+      "role": "Child",
+      "phone": "",
+      "calendars": [
+        { "label": "Calendar", "ics_url": "https://calendar.google.com/calendar/ical/c68ec5bb8060a27aaceca9f3964cd72ca941139f51e779e93f2fa7332e5d141a%40group.calendar.google.com/private-50448bfde16c0205d53075cd5af14bd8/basic.ics" }
+      ],
+      "notes": ""
+    },
+    {
+      "name": "Madeline",
+      "role": "Child",
+      "phone": "",
+      "calendars": [
+        { "label": "Calendar", "ics_url": "https://calendar.google.com/calendar/ical/4d2c971ea84c0b4298c668c54c40b7c4cdc5a2f2245249cc2cacd55fcd5a3346%40group.calendar.google.com/private-3f3c07516e17a5b6b19c8733daacd1b1/basic.ics" }
+      ],
+      "notes": ""
+    },
+    {
+      "name": "Sadie",
+      "role": "Child",
+      "phone": "",
+      "calendars": [
+        { "label": "Calendar", "ics_url": "https://calendar.google.com/calendar/ical/9b98727245292448bfa53af20584132c09530d020f217e38e57c0e801e926aef%40group.calendar.google.com/private-6336027072a11f5089a146f457cf7a0c/basic.ics" }
+      ],
+      "notes": ""
+    }
+  ],
+  "rules": [
+    "No more than one evening dinner out per week as a family",
+    "At least one family dinner at home together per week",
+    "Business trips require at least 2 weeks advance notice to the family",
+    "No solo evening activities on weeknights without checking with the other parent first",
+    "Weekends are protected family time — solo activities need family agreement",
+    "NIGHTTIME OVERBOOKING: A 'nighttime event' is any event that starts at or after 5:00 PM or runs into the evening. When any scheduling question involves a nighttime event, pull the full week's calendar and count all nighttime events. If adding the new event would bring the total to MORE than 2 nighttime events in that 7-day week (Mon–Sun), issue a clear warning: tell the person how many nighttime events are already booked, name them, and explicitly ask 'Are you sure you want that many evenings committed this week?' before treating it as approved.",
+    "TENTATIVE EVENTS: Any calendar event whose title ends with a question mark (?) must be treated as tentative/unconfirmed. When a proposed event overlaps with a tentative event, warn the person: 'Note: [Event Name?] is marked tentative on that date — confirm it's actually free before committing.'",
+    "FIELDWORK CONFLICTS: Mark has multiple Fieldwork calendars (e.g. Fieldwork - ATL, Fieldwork - LA, Fieldwork - Online Only, etc.). When any event is being considered on a date that has a Fieldwork entry, always ask: 'There is fieldwork scheduled that day — is Mark moderating?' If Mark is moderating, he is not available for family commitments during that time and the conflict should be flagged. If he is not moderating, the time may be free."
+  ],
+  "preferences": {
+    "dinner_time": "6:30 PM",
+    "family_meeting_day": "Sunday"
+  }
+}
