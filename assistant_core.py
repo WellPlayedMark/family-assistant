@@ -5,6 +5,8 @@ Used by both family_assistant.py (CLI) and sms_server.py (SMS bot).
 """
 
 import json
+import os
+import base64
 import datetime
 import urllib.request
 import urllib.error
@@ -139,6 +141,82 @@ def tool_get_events(config: dict, start_date: str, end_date: str, member_name: O
     return all_events or [{"message": f"No events found from {start_date} to {end_date}."}]
 
 
+def get_google_credentials(member_name: str):
+    """Load Google OAuth credentials for a family member."""
+    try:
+        from google.oauth2.credentials import Credentials
+        from google.auth.transport.requests import Request
+
+        # Try env var first (Railway), then local file
+        env_var = f"GOOGLE_TOKEN_{member_name.upper()}"
+        token_data = os.environ.get(env_var)
+
+        if token_data:
+            creds_json = base64.b64decode(token_data).decode()
+        else:
+            token_file = BASE_DIR / "credentials" / f"token_{member_name.lower()}.json"
+            if not token_file.exists():
+                return None
+            creds_json = token_file.read_text()
+
+        creds = Credentials.from_authorized_user_info(json.loads(creds_json))
+
+        # Refresh if expired
+        if creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+            # Save refreshed token back
+            token_file = BASE_DIR / "credentials" / f"token_{member_name.lower()}.json"
+            if token_file.parent.exists():
+                token_file.write_text(creds.to_json())
+
+        return creds
+    except Exception:
+        return None
+
+
+def tool_create_event(config: dict, member_name: str, title: str, start: str, end: str, description: str = "") -> dict:
+    """Create a Google Calendar event for a family member."""
+    try:
+        from googleapiclient.discovery import build
+    except ImportError:
+        return {"error": "Google Calendar write support not installed. Run: pip3 install google-api-python-client"}
+
+    creds = get_google_credentials(member_name)
+    if not creds:
+        return {"error": f"No Google Calendar write access for {member_name}. Run: python3 authorize.py --user {member_name}"}
+
+    try:
+        service = build("calendar", "v3", credentials=creds)
+
+        # Find the member's primary calendar ID
+        member = next((m for m in config.get("members", []) if m["name"].lower() == member_name.lower()), None)
+        if not member:
+            return {"error": f"No member named {member_name} in config."}
+
+        # Use primary calendar (email address)
+        cal_id = "primary"
+        for cal in member.get("calendars", []):
+            if cal.get("label", "").lower() == "personal":
+                # Extract email from ICS URL
+                ics = cal.get("ics_url", "")
+                if "ical/" in ics:
+                    cal_id = ics.split("ical/")[1].split("/")[0].replace("%40", "@")
+                break
+
+        event = {
+            "summary": title,
+            "description": description,
+            "start": {"dateTime": start, "timeZone": "America/New_York"},
+            "end": {"dateTime": end, "timeZone": "America/New_York"},
+        }
+
+        result = service.events().insert(calendarId=cal_id, body=event).execute()
+        return {"success": True, "event": title, "start": start, "end": end, "link": result.get("htmlLink", "")}
+
+    except Exception as e:
+        return {"error": f"Failed to create event: {e}"}
+
+
 def tool_list_calendars(config: dict) -> list[dict]:
     result = []
     for m in config.get("members", []):
@@ -178,6 +256,25 @@ TOOLS = [
         "name": "list_calendars",
         "description": "List which family members have calendars configured.",
         "input_schema": {"type": "object", "properties": {}},
+    },
+    {
+        "name": "create_event",
+        "description": (
+            "Create a new event on a family member's Google Calendar. "
+            "Only use this after confirming the details with the user. "
+            "Always confirm the date, time, and title before calling this."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "member_name": {"type": "string", "description": "Family member's name, e.g. Mark or Emily"},
+                "title": {"type": "string", "description": "Event title"},
+                "start": {"type": "string", "description": "Start time in ISO format, e.g. 2025-06-06T09:00:00"},
+                "end": {"type": "string", "description": "End time in ISO format, e.g. 2025-06-06T11:00:00"},
+                "description": {"type": "string", "description": "Optional event description"},
+            },
+            "required": ["member_name", "title", "start", "end"],
+        },
     },
 ]
 
@@ -273,6 +370,15 @@ def run_agentic_loop(
                     result = tool_get_events(config, block.input["start_date"], block.input["end_date"], block.input.get("member_name"))
                 elif block.name == "list_calendars":
                     result = tool_list_calendars(config)
+                elif block.name == "create_event":
+                    result = tool_create_event(
+                        config,
+                        block.input["member_name"],
+                        block.input["title"],
+                        block.input["start"],
+                        block.input["end"],
+                        block.input.get("description", ""),
+                    )
                 else:
                     result = {"error": f"Unknown tool: {block.name}"}
 
