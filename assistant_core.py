@@ -174,6 +174,26 @@ def get_google_credentials(member_name: str):
         return None
 
 
+def refresh_all_tokens(config: dict) -> dict:
+    """
+    Attempt to refresh Google OAuth tokens for all family members at startup.
+    Returns a summary dict with refreshed/missing/failed lists.
+    Never raises — only logs.
+    """
+    refreshed, missing, failed = [], [], []
+    for member in config.get("members", []):
+        name = member["name"]
+        try:
+            creds = get_google_credentials(name)
+            if creds is None:
+                missing.append(name)
+            else:
+                refreshed.append(name)
+        except Exception as e:
+            failed.append(name)
+    return {"refreshed": refreshed, "missing": missing, "failed": failed}
+
+
 def tool_create_event(config: dict, member_name: str, title: str, start: str, end: str, description: str = "") -> dict:
     """Create a Google Calendar event for a family member."""
     try:

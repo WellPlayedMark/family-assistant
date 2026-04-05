@@ -3,3 +3,4 @@ credentials/
 __pycache__/
 *.pyc
 .DS_Store
+conversations.db
