@@ -34,6 +34,7 @@ load_dotenv(Path(__file__).parent / ".env")
 from flask import Flask, request, Response
 from twilio.twiml.messaging_response import MessagingResponse
 from twilio.request_validator import RequestValidator
+from twilio.rest import Client as TwilioClient
 import anthropic
 
 from assistant_core import load_config, build_system_prompt, run_agentic_loop
@@ -45,6 +46,7 @@ log = logging.getLogger(__name__)
 
 app = Flask(__name__)
 client = anthropic.Anthropic()
+twilio_client = TwilioClient(os.environ.get("TWILIO_ACCOUNT_SID"), os.environ.get("TWILIO_AUTH_TOKEN"))
 config = load_config()
 
 INACTIVITY_TIMEOUT = 30 * 60  # 30 minutes — after this, conversation resets
@@ -83,6 +85,37 @@ def get_session(phone: str) -> dict:
         else:
             _store[phone]["last_active"] = now
         return _store[phone]
+
+
+def get_cc_members(sender: dict) -> list:
+    """Return other members with phones who should be CC'd."""
+    sender_phone = _normalize_phone(sender.get("phone", ""))
+    return [
+        m for m in config.get("members", [])
+        if m.get("phone") and _normalize_phone(m["phone"]) != sender_phone
+    ]
+
+
+def send_cc(sender_name: str, question: str, reply: str, cc_members: list):
+    """Send a CC copy of the exchange to other family members."""
+    from_number = config.get("twilio_number", os.environ.get("TWILIO_PHONE_NUMBER", ""))
+    if not from_number:
+        log.warning("No Twilio phone number configured for CC messages")
+        return
+
+    cc_text = f"📋 {sender_name} asked: \"{question}\"\n\n{reply}"
+    cc_text = truncate(cc_text)
+
+    for member in cc_members:
+        try:
+            twilio_client.messages.create(
+                body=cc_text,
+                from_=from_number,
+                to=member["phone"],
+            )
+            log.info("CC sent to %s", member["name"])
+        except Exception as e:
+            log.error("Failed to CC %s: %s", member["name"], e)
 
 
 def truncate(text: str) -> str:
@@ -158,7 +191,18 @@ def sms_webhook():
         log.exception("Agentic loop failed for %s: %s", from_number, e)
         reply = "Sorry, something went wrong on my end. Please try again."
 
-    resp.message(truncate(reply) if reply else "Sorry, I couldn't generate a response.")
+    final_reply = truncate(reply) if reply else "Sorry, I couldn't generate a response."
+    resp.message(final_reply)
+
+    # CC other members with phones
+    cc_members = get_cc_members(member)
+    if cc_members and reply:
+        threading.Thread(
+            target=send_cc,
+            args=(member["name"], body, final_reply, cc_members),
+            daemon=True,
+        ).start()
+
     return Response(str(resp), mimetype="text/xml")
 
 
