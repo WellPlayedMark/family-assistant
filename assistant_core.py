@@ -217,6 +217,99 @@ def tool_create_event(config: dict, member_name: str, title: str, start: str, en
         return {"error": f"Failed to create event: {e}"}
 
 
+def tool_get_school_events(start_date: str, end_date: str) -> list:
+    """Fetch events from Westminster Schools website calendar."""
+    import re as _re
+
+    try:
+        start = datetime.date.fromisoformat(start_date.split("T")[0])
+        end = datetime.date.fromisoformat(end_date.split("T")[0])
+    except ValueError as e:
+        return [{"error": f"Invalid date: {e}"}]
+
+    url = "https://www.westminster.net/about-us/school-calendar"
+    data = fetch_ics(url)  # reuse our HTTP fetcher
+    if not data:
+        return [{"error": "Could not fetch Westminster school calendar. Check your internet connection."}]
+
+    html = data.decode("utf-8", errors="ignore")
+
+    # Each event: <a ... title="EVENT NAME" data-occur-id="ID_UTCSTART_UTCEND" ...>
+    # Followed by <time datetime="LOCAL_ISO" class="fsStartTime"> and fsEndTime
+    event_pattern = _re.compile(
+        r'data-occur-id="[^"]*"[^>]*title="([^"]+)"[^>]*>.*?'
+        r'<time[^>]*datetime="([^"]+)"[^>]*class="fsStartTime"',
+        _re.DOTALL
+    )
+    # Also try reversed attribute order
+    event_pattern2 = _re.compile(
+        r'title="([^"]+)"[^>]*data-occur-id="([^"]+)"',
+    )
+    time_pattern = _re.compile(r'<time[^>]*datetime="([^"T"]+T[^"]+)"[^>]*class="fsStart')
+
+    # Parse event blocks
+    events = []
+    # Split HTML into per-event chunks using occur-id as delimiter
+    chunks = _re.split(r'(?=data-occur-id=")', html)
+    for chunk in chunks:
+        occur_match = _re.search(r'data-occur-id="([^"]+)"', chunk)
+        if not occur_match:
+            continue
+        occur_id = occur_match.group(1)
+
+        # Title from title attribute or link text
+        title_match = _re.search(r'title="([^"]+)"', chunk)
+        if not title_match:
+            title_match = _re.search(r'fsCalendarEventLink[^>]*>([^<]+)<', chunk)
+        if not title_match:
+            continue
+        title = title_match.group(1).strip()
+
+        # Start time from datetime attribute
+        start_match = _re.search(r'datetime="([^"]+)"[^>]*class="fsStartTime', chunk)
+        if not start_match:
+            # Parse from occur_id UTC timestamps
+            parts = occur_id.split("_")
+            if len(parts) >= 2:
+                try:
+                    ev_dt = datetime.datetime.fromisoformat(parts[1].replace("Z", "+00:00"))
+                    ev_date = ev_dt.date()
+                    time_str = "All day"
+                except Exception:
+                    continue
+            else:
+                continue
+        else:
+            try:
+                ev_dt = datetime.datetime.fromisoformat(start_match.group(1))
+                ev_date = ev_dt.date()
+                time_str = ev_dt.strftime("%-I:%M %p")
+            except Exception:
+                continue
+
+        if ev_date < start or ev_date > end:
+            continue
+
+        events.append({
+            "title": title,
+            "date": str(ev_date),
+            "time": time_str,
+            "source": "Westminster School Calendar",
+        })
+
+    # Deduplicate by title+date
+    seen = set()
+    unique = []
+    for e in events:
+        key = (e["title"], e["date"])
+        if key not in seen:
+            seen.add(key)
+            unique.append(e)
+
+    unique.sort(key=lambda e: (e["date"], e["time"]))
+    return unique or [{"message": f"No Westminster school events found from {start_date} to {end_date}."}]
+
+
 def tool_list_calendars(config: dict) -> list[dict]:
     result = []
     for m in config.get("members", []):
@@ -256,6 +349,21 @@ TOOLS = [
         "name": "list_calendars",
         "description": "List which family members have calendars configured.",
         "input_schema": {"type": "object", "properties": {}},
+    },
+    {
+        "name": "get_school_events",
+        "description": (
+            "Get upcoming events from Westminster Schools' website calendar. "
+            "Use this when asked about school events, school calendar, what's happening at school, etc."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "start_date": {"type": "string", "description": "Start date in YYYY-MM-DD format"},
+                "end_date": {"type": "string", "description": "End date in YYYY-MM-DD format"},
+            },
+            "required": ["start_date", "end_date"],
+        },
     },
     {
         "name": "create_event",
@@ -366,7 +474,9 @@ def run_agentic_loop(
                 if on_tool_call:
                     on_tool_call(block.name)
 
-                if block.name == "get_family_events":
+                if block.name == "get_school_events":
+                    result = tool_get_school_events(block.input["start_date"], block.input["end_date"])
+                elif block.name == "get_family_events":
                     result = tool_get_events(config, block.input["start_date"], block.input["end_date"], block.input.get("member_name"))
                 elif block.name == "list_calendars":
                     result = tool_list_calendars(config)

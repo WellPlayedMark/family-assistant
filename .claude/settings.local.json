@@ -23,7 +23,27 @@
       "Bash(curl -s \"https://calendar.google.com/calendar/ical/c_a4ca271f7bb1ab7f8cc60a83dadbb221269731a84a035d1dd7f8145340ee13e2%40group.calendar.google.com/private-71311fbbdb95d3383114c81b47041d1b/basic.ics\")",
       "Bash(curl -s \"https://calendar.google.com/calendar/ical/c_5e9d8a4f0fce1e49f605c36b8ab4b622a78413a933590132055f63587dfe5f85%40group.calendar.google.com/private-e940568d85f1af1eea3699472299256c/basic.ics\")",
       "Bash(echo $ANTHROPIC_API_KEY)",
-      "Bash(\"/Users/markallenbach/Documents/Claude/Ai Family:*)"
+      "Bash(\"/Users/markallenbach/Documents/Claude/Ai Family:*)",
+      "WebFetch(domain:www.westminster.net)",
+      "Bash(curl -s \"https://www.westminster.net/about-us/school-calendar\")",
+      "Bash(curl -s \"https://www.westminster.net/arts/events-and-exhibitions\")",
+      "Bash(curl -sL \"https://www.westminster.net/calendar/feed.rss\")",
+      "Bash(__NEW_LINE_c39c20ff445acd01__ echo:*)",
+      "Bash(curl -s -o /dev/null -w \"Status: %{http_code}\\\\n\" \"https://www.westminster.net/calendar/4/feed.ics\")",
+      "Bash(curl -s -o /dev/null -w \"Status: %{http_code}\\\\n\" \"https://www.westminster.net/feeds/calendar/4.ics\")",
+      "Bash(curl -s -o /dev/null -w \"Status: %{http_code}\\\\n\" \"https://www.westminster.net/calendar.ics\")",
+      "Bash(curl -s -o /dev/null -w \"Status: %{http_code}\\\\n\" \"https://www.westminster.net/calendars/4.ics\")",
+      "Bash(__NEW_LINE_9e2ed99aa2a06996__ echo:*)",
+      "Bash(__NEW_LINE_f30b47640f22858f__ curl:*)",
+      "Bash(__NEW_LINE_7369bed7529e0d5d__ echo:*)",
+      "Bash(__NEW_LINE_5404ddf5856ff516__ echo:*)",
+      "Bash(curl -s \"https://westminsternet.v1.clients.fs4.us/api/calendars/\")",
+      "WebFetch(domain:westminsterathletics.net)",
+      "Bash(__NEW_LINE_bca42d17bfe1b28b__ echo:*)",
+      "Bash(sed 's/.*data-occur-id/data-occur-id/' __NEW_LINE_bca42d17bfe1b28b__ echo \"\" echo \"Feed Resources:\" echo \"- Page explicitly states: ''''If you are planning to sync the School calendar with your personal calendar, please sync using the calendar feeds in Wildcat Web.''''\" echo \"- Wildcat Web redirects to: https://accounts.veracross.com/westminster/portals/login\" echo \"\" echo \"Tested feed URLs:\" for url in \"/feeds/calendar/4.rss\" \"/calendar/4/feed.rss\" \"/calendar/feed.rss\" \"/calendar.ics\" \"/ical/\")",
+      "Bash(do echo:*)",
+      "Bash(curl -s \"https://www.westminster.net/about-us/school-calendar?date=2026-05-01\")",
+      "Bash(python3 -c \":*)"
     ]
   }
 }
