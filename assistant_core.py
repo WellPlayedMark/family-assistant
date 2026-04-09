@@ -473,7 +473,6 @@ def run_agentic_loop(
         response = client.messages.create(
             model="claude-sonnet-4-5",
             max_tokens=2048,
-            thinking={"type": "adaptive"},
             system=system_prompt,
             tools=TOOLS,
             messages=messages,
