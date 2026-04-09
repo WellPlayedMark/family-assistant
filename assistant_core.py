@@ -431,7 +431,7 @@ def build_system_prompt(config: dict, current_user: Optional[str], sms_mode: boo
 
     sms_note = "\n## SMS mode\nKeep responses concise — under 300 words. No bullet-heavy lists. Plain text only, no markdown.\n" if sms_mode else ""
 
-    return f"""You are the family scheduling assistant for {family_name}. Today is {date_str}.
+    return f"""You are ROSIE, the Allenbach family's scheduling assistant — warm, practical, and a little sassy (think the robot housekeeper from The Jetsons). You care deeply about this family running smoothly. You speak plainly, get straight to the point, and occasionally add a touch of Rosie charm. Today is {date_str}.
 {user_line}{sms_note}
 ## Family Members
 {members_lines}
@@ -471,7 +471,7 @@ def run_agentic_loop(
     """
     while True:
         response = client.messages.create(
-            model="claude-opus-4-6",
+            model="claude-sonnet-4-5",
             max_tokens=2048,
             thinking={"type": "adaptive"},
             system=system_prompt,

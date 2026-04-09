@@ -242,7 +242,7 @@ if __name__ == "__main__":
     # Send startup health text to Mark
     mark = next((m for m in config.get("members", []) if m["name"] == "Mark"), None)
     if mark and mark.get("phone"):
-        send_sms(mark["phone"], "Family assistant is back online ✅")
+        send_sms(mark["phone"], "ROSIE is back online ✅")
 
     log.info("Starting server on port %d — %s", port, config.get("family_name"))
     app.run(host="0.0.0.0", port=port, debug=False)

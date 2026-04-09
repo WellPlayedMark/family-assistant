@@ -64,7 +64,7 @@ def morning_briefing(config: dict, send_sms: Callable):
         name = cal.split(" (")[0] if " (" in cal else cal
         by_person.setdefault(name, []).append(e)
 
-    lines = [f"Good morning! Here's today for the Allenbachs 🌅\n"]
+    lines = [f"Good morning from ROSIE! Here's what's on the books today 🌅\n"]
 
     members = config.get("members", [])
     for member in members:
