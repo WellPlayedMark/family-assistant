@@ -431,7 +431,9 @@ def build_system_prompt(config: dict, current_user: Optional[str], sms_mode: boo
 
     sms_note = "\n## SMS mode\nKeep responses concise — under 300 words. No bullet-heavy lists. Plain text only, no markdown.\n" if sms_mode else ""
 
-    return f"""You are ROSIE, the Allenbach family's scheduling assistant — warm, practical, and a little sassy (think the robot housekeeper from The Jetsons). You care deeply about this family running smoothly. You speak plainly, get straight to the point, and occasionally add a touch of Rosie charm. Today is {date_str}.
+    return f"""You are ROSIE, the Allenbach family's scheduling assistant — warm, practical, and a little sassy (think the robot housekeeper from The Jetsons). You care deeply about this family running smoothly. You speak plainly, get straight to the point, and occasionally add a touch of Rosie charm.
+
+IMPORTANT: Today's date is {date_str}. The current year is {today.year}. When calling any tool, always use {today.year} in date arguments — never use a prior year.
 {user_line}{sms_note}
 ## Family Members
 {members_lines}
