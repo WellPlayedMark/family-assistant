@@ -161,6 +161,51 @@ def sms_webhook():
 
 # ── Web chat routes ────────────────────────────────────────────────────────────
 
+@app.route("/consent")
+def consent_page():
+    return """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ROSIE — SMS Consent &amp; Privacy</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 680px; margin: 60px auto; padding: 0 24px; color: #1a1a1a; line-height: 1.6; }
+    h1 { color: #2c3e50; }
+    h2 { color: #2c3e50; margin-top: 2em; font-size: 1.1em; }
+    .badge { background: #2c3e50; color: white; padding: 4px 12px; border-radius: 20px; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>🤖 ROSIE — Family Scheduling Assistant</h1>
+  <p><span class="badge">Private Family Tool</span></p>
+
+  <h2>What is ROSIE?</h2>
+  <p>ROSIE is a private AI scheduling assistant built for the Allenbach family. It helps coordinate calendars, sends daily schedule briefings, and alerts family members to scheduling conflicts.</p>
+
+  <h2>Who receives SMS messages?</h2>
+  <p>ROSIE sends text messages to exactly two recipients: <strong>Mark Allenbach</strong> and <strong>Emily Allenbach</strong>. Both individuals personally built and configured this system and have explicitly consented to receive messages from it. No other recipients exist. This is not a marketing service.</p>
+
+  <h2>Message types</h2>
+  <ul>
+    <li>Daily schedule briefings (sent each morning)</li>
+    <li>Scheduling conflict alerts</li>
+    <li>Replies to inbound scheduling questions</li>
+    <li>System status notifications</li>
+  </ul>
+
+  <h2>Consent</h2>
+  <p>Both recipients are the owners and operators of this system. Consent was given verbally and confirmed by personally configuring the service, providing their own phone numbers, and setting up the messaging integration.</p>
+
+  <h2>Opt-out</h2>
+  <p>Recipients can reply <strong>STOP</strong> at any time to stop receiving messages.</p>
+
+  <h2>Contact</h2>
+  <p>For questions: <a href="mailto:mark@wellplayedllc.com">mark@wellplayedllc.com</a></p>
+</body>
+</html>"""
+
+
 @app.route("/chat")
 def chat_page():
     members = [m["name"] for m in config.get("members", [])]
