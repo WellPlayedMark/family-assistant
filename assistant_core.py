@@ -10,8 +10,13 @@ import base64
 import datetime
 import urllib.request
 import urllib.error
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Optional, Callable
+
+import pytz
+
+EASTERN = pytz.timezone("America/New_York")
 
 import anthropic
 from icalendar import Calendar
@@ -114,30 +119,35 @@ def tool_get_events(config: dict, start_date: str, end_date: str, member_name: O
         if not members:
             return [{"error": f"No member named '{member_name}' found in config."}]
 
-    all_events = []
+    # Build list of (cal_name, ics_url) tuples to fetch
+    fetch_targets = []
+    no_cal_notes = []
     for member in members:
         raw = member.get("calendars") or []
         if not raw and member.get("ics_url", "").strip():
             raw = [{"label": "Personal", "ics_url": member["ics_url"]}]
-
         if not raw:
-            all_events.append({"person": member["name"], "note": f"No calendars configured for {member['name']}."})
+            no_cal_notes.append({"person": member["name"], "note": f"No calendars configured for {member['name']}."})
             continue
-
         for cal_entry in raw:
             ics_url = cal_entry.get("ics_url", "").strip()
-            label = cal_entry.get("label", "Calendar")
-            if not ics_url:
-                continue
-            cal_name = f"{member['name']} ({label})"
+            if ics_url:
+                fetch_targets.append((f"{member['name']} ({cal_entry.get('label', 'Calendar')})", ics_url))
 
-            ics_data = fetch_ics(ics_url)
-            if ics_data is None:
-                all_events.append({"calendar": cal_name, "error": f"Could not fetch '{label}' calendar for {member['name']}."})
-                continue
+    # Fetch all calendars in parallel
+    all_events = list(no_cal_notes)
+    def _fetch_and_parse(cal_name: str, url: str) -> list:
+        ics_data = fetch_ics(url)
+        if ics_data is None:
+            return [{"calendar": cal_name, "error": f"Could not fetch calendar '{cal_name}'."}]
+        return parse_events(ics_data, cal_name, start, end)
 
-            all_events.extend(parse_events(ics_data, cal_name, start, end))
+    with ThreadPoolExecutor(max_workers=10) as pool:
+        futures = {pool.submit(_fetch_and_parse, name, url): name for name, url in fetch_targets}
+        for future in as_completed(futures):
+            all_events.extend(future.result())
 
+    all_events.sort(key=lambda e: e.get("start", ""))
     return all_events or [{"message": f"No events found from {start_date} to {end_date}."}]
 
 
@@ -410,7 +420,7 @@ TOOLS = [
 # ── System prompt ──────────────────────────────────────────────────────────────
 
 def build_system_prompt(config: dict, current_user: Optional[str], sms_mode: bool = False) -> str:
-    today = datetime.date.today()
+    today = datetime.datetime.now(EASTERN).date()
     date_str = today.strftime("%A, %B %d, %Y")
     family_name = config.get("family_name", "My Family")
 
