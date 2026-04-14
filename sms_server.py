@@ -239,9 +239,15 @@ def chat_send():
         save_message(session_id, "user", message)
         if reply:
             save_message(session_id, "assistant", reply)
+    except anthropic.OverloadedError:
+        log.warning("Anthropic API overloaded for %s", user_name)
+        return jsonify({"error": "ROSIE is a little overwhelmed right now — try again in a moment! 🤖"}), 503
+    except anthropic.AuthenticationError:
+        log.error("Anthropic API key invalid")
+        return jsonify({"error": "ROSIE can't connect — API key issue. Ask Mark to check the settings."}), 500
     except Exception as e:
         log.exception("Web chat error for %s: %s", user_name, e)
-        return jsonify({"error": "Assistant error, please try again."}), 500
+        return jsonify({"error": "ROSIE hit a snag — please try again."}), 500
 
     return jsonify({"reply": reply or "Sorry, no response generated."})
 
