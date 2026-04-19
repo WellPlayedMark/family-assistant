@@ -23,7 +23,7 @@ from typing import Optional
 from dotenv import load_dotenv
 load_dotenv(Path(__file__).parent / ".env")
 
-from flask import Flask, request, Response, render_template, jsonify
+from flask import Flask, request, Response, render_template, jsonify, session, redirect, url_for
 from twilio.twiml.messaging_response import MessagingResponse
 from twilio.request_validator import RequestValidator
 from twilio.rest import Client as TwilioClient
@@ -38,6 +38,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 log = logging.getLogger(__name__)
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", os.urandom(24))
 client = anthropic.Anthropic()
 config = load_config()
 
@@ -159,6 +160,32 @@ def sms_webhook():
     return Response(str(resp), mimetype="text/xml")
 
 
+# ── Auth ───────────────────────────────────────────────────────────────────────
+
+def require_pin(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not session.get("authenticated"):
+            return redirect(url_for("login_page"))
+        return f(*args, **kwargs)
+    return decorated
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login_page():
+    error = ""
+    if request.method == "POST":
+        pin = request.form.get("pin", "").strip().lower()
+        correct = config.get("web_pin", "").strip().lower()
+        if pin == correct:
+            session["authenticated"] = True
+            session.permanent = True
+            return redirect(url_for("chat_page"))
+        error = "Wrong PIN — try again."
+    family_name = config.get("family_name", "The Family")
+    return render_template("login.html", family_name=family_name, error=error)
+
+
 # ── Web chat routes ────────────────────────────────────────────────────────────
 
 @app.route("/consent")
@@ -207,6 +234,7 @@ def consent_page():
 
 
 @app.route("/chat")
+@require_pin
 def chat_page():
     members = [m["name"] for m in config.get("members", [])]
     return render_template(
@@ -217,6 +245,7 @@ def chat_page():
 
 
 @app.route("/chat/send", methods=["POST"])
+@require_pin
 def chat_send():
     data = request.json or {}
     user_name = data.get("user", "").strip()
